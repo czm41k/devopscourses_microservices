@@ -11,4 +11,8 @@ dependencies:
   - name: comment
     version: 1.0.0
     repository: "file://../comment"
+
+  - name: mongodb
+    version: 7.2.8
+    repository: https://kubernetes-charts.storage.googleapis.com
 ...

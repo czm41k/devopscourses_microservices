@@ -2,7 +2,7 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: {{ template "ui.fullname" . }}
+  name: {{ .Release.Name }}-{{ .Chart.Name }}
   labels:
     app: reddit
     component: ui
@@ -25,10 +25,10 @@ spec:
         release: {{ .Release.Name }}
     spec:
       containers:
-      - image: {{ .Values.image.repository }}/ui:{{ .Values.image.tag }}
+      - image: devopscourses/ui
         name: ui
         ports:
-        - containerPort: {{ .Values.service.internalPort }}
+        - containerPort: 9292
           name: ui
           protocol: TCP
         env:
@@ -36,4 +36,3 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-...
