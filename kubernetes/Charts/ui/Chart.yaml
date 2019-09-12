@@ -1,0 +1,9 @@
+---
+name: ui
+version: 1.0.0
+description: OTUS reddit application UI homework
+maintainers:
+  - name: czm41k
+    email: etselikov@express42.com
+appVersion: 1.0
+...
