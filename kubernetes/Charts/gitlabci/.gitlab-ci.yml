@@ -1,4 +1,4 @@
-image: alpine:latest
+image: alpine:3.9.4
 
 stages:
   - build
@@ -30,7 +30,7 @@ release:
   stage: release
   image: docker
   services:
-    - docker:dind
+    - docker:18.09.7-dind
   script:
     - setup_docker
     - release
@@ -88,4 +88,6 @@ release:
   }
 
 before_script:
+  - apk update && apk add ruby-full ruby-dev build-base ruby-bundler linux-headers &&     gem install bundler --no-ri --no-rdoc
+  - gem install nio4r -v '2.5.1' --source 'https://rubygems.org/'
   - *auto_devops
