@@ -4,7 +4,7 @@ service:
   externalPort: 9292
 
 image:
-  repository: devopscourses/ui
+  repository: czm41k/ui
   tag: latest
 
 ingress:
