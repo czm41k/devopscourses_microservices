@@ -10,7 +10,7 @@ build:
   stage: build
   image: docker:git
   services:
-    - docker:dind
+    - docker:18.09.7-dind
   script:
     - setup_docker
     - build
