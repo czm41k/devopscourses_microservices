@@ -1,5 +1,5 @@
 FROM alpine:latest
-RUN apk update && apk add ruby-full ruby-dev build-base ruby-bundler && \
+RUN apk update && apk add linux-headers ruby-full ruby-dev build-base ruby-bundler && \
     gem install bundler --no-ri --no-rdoc 
 
 ENV APP_HOME /app
