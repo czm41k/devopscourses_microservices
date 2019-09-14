@@ -139,7 +139,6 @@ review:
     - echo "Download helm dependencies..."
     - helm dep update reddit-deploy/reddit
     - echo "Deploy helm release $name to $KUBE_NAMESPACE"
-    - echo $(helm ls -a | grep $name | wc -l)
     - echo "Upgrading existing release..."
     - echo "helm upgrade --install --wait --set ui.ingress.host="$host" --set $CI_PROJECT_NAME.image.tag="$CI_APPLICATION_TAG" --namespace="$KUBE_NAMESPACE" --version="$CI_PIPELINE_ID-$CI_JOB_ID" "$name" reddit-deploy/reddit/"
     - >
