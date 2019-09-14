@@ -1,14 +1,14 @@
 ---
 comment:
   image:
-    repository: devopscourses/comment
+    repository: czm41k/comment
     tag: latest
   service:
     externalPort: 9292
 
 post:
   image:
-    repository: devopscourses/post
+    repository: czm41k/post
     tag: latest
   service:
     externalPort: 5000

@@ -77,6 +77,9 @@ release:
     - docker pull "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG"
     - docker tag "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG" "$CI_APPLICATION_REPOSITORY:$(cat VERSION)"
     - docker push "$CI_APPLICATION_REPOSITORY:$(cat VERSION)"
+    # latest is neede for feature flags
+    - docker tag "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG" "$CI_APPLICATION_REPOSITORY:latest"
+    - docker push "$CI_APPLICATION_REPOSITORY:latest"
   only:
     - master
 
@@ -116,7 +119,6 @@ review:
     - kubectl version --client
     # ensuring namespace
     - kubectl describe namespace "$KUBE_NAMESPACE" || kubectl create namespace "$KUBE_NAMESPACE"
-  script:
     # installing Tiller
     - echo "Checking Tiller..."
     - helm init --upgrade
@@ -126,7 +128,7 @@ review:
         echo "Failed to init Tiller."
         exit 1
       fi
-    # Deployment
+  script:
     - export track="${1-stable}"
     - >
       if [[ "$track" != "stable" ]]; then
@@ -137,14 +139,15 @@ review:
     - echo "Download helm dependencies..."
     - helm dep update reddit-deploy/reddit
     - echo "Deploy helm release $name to $KUBE_NAMESPACE"
-    - echo APP_TAG=$CI_APPLICATION_TAG
-    - echo "helm upgrade --install --wait --set ui.ingress.host=$host --set $CI_PROJECT_NAME.image.tag=$CI_APPLICATION_TAG --namespace=$KUBE_NAMESPACE --version=$CI_PIPELINE_ID-$CI_JOB_ID $name reddit-deploy/reddit/"
+    - echo $(helm ls -a | grep $name | wc -l)
+    - echo "Upgrading existing release..."
+    - echo "helm upgrade --install --wait --set ui.ingress.host="$host" --set $CI_PROJECT_NAME.image.tag="$CI_APPLICATION_TAG" --namespace="$KUBE_NAMESPACE" --version="$CI_PIPELINE_ID-$CI_JOB_ID" "$name" reddit-deploy/reddit/"
     - >
       helm upgrade \
-        -- install \
+        --install \
         --wait \
         --set ui.ingress.host="$host" \
-        --set $CI_PROJECT_NAME.image.tag=$CI_APPLICATION_TAG \
+        --set $CI_PROJECT_NAME.image.tag="$CI_APPLICATION_TAG" \
         --namespace="$KUBE_NAMESPACE" \
         --version="$CI_PIPELINE_ID-$CI_JOB_ID" \
         "$name" \
@@ -154,6 +157,7 @@ stop_review:
   stage: cleanup
   variables:
     GIT_STRATEGY: none
+    name: $CI_ENVIRONMENT_SLUG
   environment:
     name: review/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME
     action: stop
@@ -171,17 +175,16 @@ stop_review:
     - wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
     - wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-2.23-r3.apk
     - apk add glibc-2.23-r3.apk
-    - rm glibc-2.23-r3.ap
     - curl https://storage.googleapis.com/pub/gsutil.tar.gz | tar -xz -C $HOME
-    - export PATH=${PATH}:$HOME/gsuti
-    - curl https://kubernetes-helm.storage.googleapis.com/helm-v2.13.1-linux-amd64.tar.gz | tar z
+    - export PATH=${PATH}:$HOME/gsutil
+    - curl https://kubernetes-helm.storage.googleapis.com/helm-v2.13.1-linux-amd64.tar.gz | tar zx
     - mv linux-amd64/helm /usr/bin/
-    - helm version --clien
+    - helm version --client
     - curl  -o /usr/bin/sync-repo.sh https://raw.githubusercontent.com/kubernetes/helm/master/scripts/sync-repo.sh
-    - chmod a+x /usr/bin/sync-repo.s
+    - chmod a+x /usr/bin/sync-repo.sh
     - curl -L -o /usr/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
     - chmod +x /usr/bin/kubectl
     - kubectl version --client
   script:
-    - name="$CI_ENVIRONMENT_SLUG" helm delete "$name" --purge || true
+    - helm delete "$name" --purge
 ...
