@@ -1,0 +1,24 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ui-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reddit
+      component: ui 
+  template:
+    metadata:
+      name: ui
+      labels:
+        app: reddit
+        component: ui 
+    spec:
+      containers:
+      - image: czm41k/ui:latest
+        name: ui
+        ports:
+        - containerPort: 9292
+...
